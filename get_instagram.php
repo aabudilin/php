@@ -50,7 +50,7 @@ class GetInstagram {
   }
 
   private function save_token($token) {
-    file_put_contants($this->path);
+    file_put_contents($this->path);
   }
 
   private function chek_token() {

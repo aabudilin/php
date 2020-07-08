@@ -2,9 +2,12 @@
 class GetInstagram {
   private $token;
   private $path;
+  private $log;
 
   function __construct() {
-    $this->path = $_SERVER['DOCUMENT_ROOT'].'/php/insta_token.txt';
+	$this->path = 'https://pushe.ru/php/insta_token.txt';
+	echo $this->path;
+	$this->log = false;
     $this->token = $this->get_token();
     $this->chek_token();
   }
@@ -41,25 +44,43 @@ class GetInstagram {
     $response = json_decode(curl_exec($instagramCnct)); // получаем и декодируем данные из JSON
     curl_close($instagramCnct); // закрываем соединение
     $accessToken = $response->access_token; // обновленный токен
+	if ($this->log) {
+		echo 'Обновление токена<br />';
+		echo 'Ответ сервера<br /><pre>';
+		print_r($response);
+	}
     return $accessToken;
   }
 
   private function get_token() {
     $token = file_get_contents($this->path);
+	if ($this->log) {
+		echo 'get_token - '.$token.'<br />';
+	}
     return $token;
   }
 
   private function save_token($token) {
-    file_put_contents($this->path);
+    $result = file_put_contents($this->path,$token);
+	if ($this->log) {
+		echo 'save_token - '.$result.'<br />';
+	}
   }
 
   private function chek_token() {
     $media = $this->get_media();
     //Если токен ошибочный обновляем его
     if (!$media->data) {
-      $this->token = $this->update_token();
-      $this->save_token($this->token);
+	  $new_token = $this->update_token();
+		if ($new_token) {
+      		$this->token = $this->update_token();
+		    $this->save_token($this->token);
+		}
     }
   }
+
+	public function logged() {
+		$this->log = true;
+	}
 }
 ?>
